@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.database import engine
 from app import models
@@ -24,5 +23,3 @@ app.include_router(tasks.router)
 @app.get("/")
 def root():
     return FileResponse("frontend/index.html")
-
-app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
