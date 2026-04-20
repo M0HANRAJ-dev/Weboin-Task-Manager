@@ -2,14 +2,17 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from app.database import engine
 from app import models
 from app.routes import user, tasks
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    models.Base.metadata.create_all(bind=engine)
+    try:
+        models.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"DB init error: {e}")
     yield
 
 app = FastAPI(title="Task Manager API", lifespan=lifespan)
