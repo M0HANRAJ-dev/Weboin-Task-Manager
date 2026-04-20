@@ -21,8 +21,8 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(tasks.router)
 
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
-
 @app.get("/")
 def root():
     return FileResponse("frontend/index.html")
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
