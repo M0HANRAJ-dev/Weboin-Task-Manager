@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -20,6 +21,9 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(tasks.router)
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_PATH = os.path.join(BASE_DIR, "frontend", "index.html")
+
 @app.get("/")
 def root():
-    return FileResponse("frontend/index.html")
+    return FileResponse(FRONTEND_PATH)
