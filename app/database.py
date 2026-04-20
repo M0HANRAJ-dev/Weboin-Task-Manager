@@ -4,10 +4,10 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-# Vercel filesystem is read-only except /tmp
-DB_PATH = "/tmp/test.db" if os.environ.get("VERCEL") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.db")
 
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
+# /tmp works on both Vercel (read-only fs) and local dev
+# Override with DATABASE_URL env var for persistent DB (e.g. Postgres)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////tmp/test.db")
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
@@ -21,5 +21,3 @@ def get_db():
         yield db
     finally:
         db.close()
-        
-    
