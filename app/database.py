@@ -6,16 +6,31 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////tmp/test.db")
-
-# SQLite needs check_same_thread=False; Postgres does not need it
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
+_engine = None
+_SessionLocal = None
+_initialized = False
+
+def get_engine():
+    global _engine, _SessionLocal
+    if _engine is None:
+        _engine = create_engine(DATABASE_URL, connect_args=connect_args)
+        _SessionLocal = sessionmaker(bind=_engine, autoflush=False, autocommit=False)
+    return _engine
+
+def ensure_tables():
+    global _initialized
+    if not _initialized:
+        from app import models  # import here to avoid circular at module level
+        Base.metadata.create_all(bind=get_engine())
+        _initialized = True
+
 def get_db():
-    db = SessionLocal()
+    ensure_tables()
+    db = _SessionLocal()
     try:
         yield db
     finally:
